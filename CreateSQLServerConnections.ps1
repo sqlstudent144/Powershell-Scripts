@@ -31,6 +31,7 @@ for($i=0;$i -le $MaxConnections-1;$i++){
 #$DbConnections
 
 <#
+# Debugging code.  Create a connection using code from the $cmdstr below.
 Add-Type -AssemblyName "Microsoft.SqlServer.Smo,Version=$(12).0.0.0,Culture=neutral,PublicKeyToken=89845dcd8080cc91"
 [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.SqlServer.Smo")
 $SqlConn = New-Object Microsoft.SqlServer.Management.Smo.Server("$Server")
@@ -40,7 +41,6 @@ $SqlConn.Databases['master'].ExecuteNonQuery("WAITFOR DELAY '00:05:00'")
 #Loop through DB Connection array, create script block for establishing SMO connection/query
 #Start-Job for each script block
 foreach ($DBName in $DbConnections ) {
-#$DBNameStr = $DBName.Name
  $cmdstr =@"
 `Add-Type -AssemblyName "Microsoft.SqlServer.Smo,Version=$(12).0.0.0,Culture=neutral,PublicKeyToken=89845dcd8080cc91"
 `[System.Reflection.Assembly]::LoadWithPartialName("Microsoft.SqlServer.Smo")
@@ -48,7 +48,8 @@ foreach ($DBName in $DbConnections ) {
 `$SqlConn.Databases['$DBName'].ExecuteNonQuery("WAITFOR DELAY '00:00:30'")
 "@
 
-$cmdstr
+# Display script that will be run in the script block.
+#$cmdstr
 
 $cmd = [ScriptBlock]::Create($cmdstr)
 Start-Job -ScriptBlock $cmd
